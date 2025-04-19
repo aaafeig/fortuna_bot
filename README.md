@@ -23,8 +23,8 @@
 1. Клонируйте репозиторий:
 
 ```bash
-git clone https://github.com/your-username/telegram-casino-bot.git
-cd telegram-casino-bot
+git clone https://github.com/aaafeig/fortuna_bot
+cd fortuna_bot
 ```
 
 2. Установите зависимости с помощью Poetry:
