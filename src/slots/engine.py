@@ -1,6 +1,9 @@
 import random
 
-from main import bot
+from telebot import types
+
+from conf import bot
+from src.balance import get_balance, update_balance
 
 
 def slots_bet(message):
@@ -14,11 +17,20 @@ def slots_bet(message):
     balance = get_balance(user_id)
 
     if balance == 0:
-        bot.send_message(user_id, "❌ У вас недостаточно средств для игры. Пополните баланс, чтобы начать играть!")
+        bot.send_message(
+            user_id,
+            "❌ У вас недостаточно средств для игры. Пополните баланс, чтобы начать играть!",
+        )
         markup = types.InlineKeyboardMarkup()
-        btn_plus_balance = types.InlineKeyboardButton("🔄 Пополнить баланс", callback_data="plus")
+        btn_plus_balance = types.InlineKeyboardButton(
+            "🔄 Пополнить баланс", callback_data="plus"
+        )
         markup.add(btn_plus_balance)
-        bot.send_message(user_id, "💰 Ваш баланс: 0 монет. Пополните баланс, чтобы начать играть.", reply_markup=markup)
+        bot.send_message(
+            user_id,
+            "💰 Ваш баланс: 0 монет. Пополните баланс, чтобы начать играть.",
+            reply_markup=markup,
+        )
         return
 
     if bet <= 0:
@@ -27,7 +39,10 @@ def slots_bet(message):
         return
 
     if bet > balance:
-        bot.send_message(user_id, f"❌ У вас недостаточно средств для ставки! Ваш баланс: 💵 {balance} монет.")
+        bot.send_message(
+            user_id,
+            f"❌ У вас недостаточно средств для ставки! Ваш баланс: 💵 {balance} монет.",
+        )
         bot.send_message(user_id, "Введите ставку заново:")
         bot.register_next_step_handler(message, slots_bet)
         return
@@ -35,19 +50,35 @@ def slots_bet(message):
     update_balance(user_id, balance - bet + winnings)
 
     if winnings > 0:
-        bot.send_message(user_id, f"🎰 {result}\n"
-                                  f"🎉 Поздравляем, вы выиграли 💵 {round(winnings)} монет!\n"
-                                  f"Ваш текущий баланс: 💵 {get_balance(user_id)} монет.")
+        bot.send_message(
+            user_id,
+            f"🎰 {result}\n"
+            f"🎉 Поздравляем, вы выиграли 💵 {round(winnings)} монет!\n"
+            f"Ваш текущий баланс: 💵 {get_balance(user_id)} монет.",
+        )
     else:
-        bot.send_message(user_id, f"🎰 {result}\n"
-                                  f"😢 Увы, вы проиграли.\n"
-                                  f"Ваш текущий баланс: 💵 {get_balance(user_id)} монет.")
+        bot.send_message(
+            user_id,
+            f"🎰 {result}\n"
+            f"😢 Увы, вы проиграли.\n"
+            f"Ваш текущий баланс: 💵 {get_balance(user_id)} монет.",
+        )
 
     markup = types.InlineKeyboardMarkup()
-    btn_play_again = types.InlineKeyboardButton("🔄 Сыграть еще раз", callback_data="play_again")
-    btn_main_menu = types.InlineKeyboardButton("🏠 Главное меню", callback_data="main_menu")
+    btn_play_again = types.InlineKeyboardButton(
+        "🔄 Сыграть еще раз", callback_data="play_again"
+    )
+    btn_main_menu = types.InlineKeyboardButton(
+        "🏠 Главное меню", callback_data="main_menu"
+    )
     markup.row(btn_play_again, btn_main_menu)
-    bot.send_message(user_id, "Хотите сыграть еще раз или вернуться в главное меню?", reply_markup=markup)
+    bot.send_message(
+        user_id,
+        "Хотите сыграть еще раз или вернуться в главное меню?",
+        reply_markup=markup,
+    )
+
+
 def play_slots(bet):
     slots = ["🍒", "🍋", "🔔", "🍉", "⭐", "7️⃣"]
     spin = random.choices(slots, k=3)
@@ -70,7 +101,6 @@ def play_slots(bet):
         "⭐⭐": 1.5,
         "7️⃣7️⃣": 2,
     }
-
 
     spin_key = "".join(spin)
 

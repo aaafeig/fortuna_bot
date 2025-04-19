@@ -3,14 +3,16 @@ import random
 
 from telebot import types
 
-from main import bot
+from conf import bot
 from src.balance import user_balances, get_balance, update_balance, save_balances
 
 
 def nvuti_process(user_id, choice):
     current_game = user_balances[user_id].get("current_nvuti")
     if not current_game:
-        bot.send_message(user_id, "❌ Ошибка: текущая игра не найдена. Попробуйте начать заново.")
+        bot.send_message(
+            user_id, "❌ Ошибка: текущая игра не найдена. Попробуйте начать заново."
+        )
         return
 
     chance = current_game["chance"]
@@ -28,22 +30,35 @@ def nvuti_process(user_id, choice):
     if is_win:
         winnings = bet * (100 / chance)
         update_balance(user_id, balance - bet + winnings)
-        bot.send_message(user_id, f"🎉 Число: {random_number}. Вы выиграли {math.floor(winnings)} монет! Ваш баланс: {get_balance(user_id)}.")
+        bot.send_message(
+            user_id,
+            f"🎉 Число: {random_number}. Вы выиграли {math.floor(winnings)} монет! Ваш баланс: {get_balance(user_id)}.",
+        )
     else:
         update_balance(user_id, balance - bet)
-        bot.send_message(user_id, f"😢 Число: {random_number}. Вы проиграли {bet} монет. Ваш баланс: {get_balance(user_id)}.")
+        bot.send_message(
+            user_id,
+            f"😢 Число: {random_number}. Вы проиграли {bet} монет. Ваш баланс: {get_balance(user_id)}.",
+        )
 
     user_balances[user_id].pop("current_nvuti", None)
     save_balances()
 
-
     markup = types.InlineKeyboardMarkup()
-    btn_play_again = types.InlineKeyboardButton("🔄 Сыграть еще раз", callback_data="nvuti_play")
-    btn_main_menu = types.InlineKeyboardButton("🏠 Главное меню", callback_data="main_menu")
+    btn_play_again = types.InlineKeyboardButton(
+        "🔄 Сыграть еще раз", callback_data="nvuti_play"
+    )
+    btn_main_menu = types.InlineKeyboardButton(
+        "🏠 Главное меню", callback_data="main_menu"
+    )
     markup.row(btn_play_again, btn_main_menu)
-    bot.send_message(user_id, "Хотите сыграть еще раз или вернуться в главное меню?", reply_markup=markup)
+    bot.send_message(
+        user_id,
+        "Хотите сыграть еще раз или вернуться в главное меню?",
+        reply_markup=markup,
+    )
 
-@bot.callback_query_handler(func=lambda callback: callback.data.startswith("nvuti_less") or callback.data.startswith("nvuti_more"))
+
 def nvuti_result(callback):
     user_id = str(callback.message.chat.id)
     data = callback.data.split("_")
@@ -69,7 +84,13 @@ def nvuti_result(callback):
     if is_win:
         winnings = bet * (100 / chance)
         update_balance(user_id, balance - bet + winnings)
-        bot.send_message(user_id, f"🎉 Число: {random_number}. Вы выиграли {math.floor(winnings)} монет! Ваш баланс: {get_balance(user_id)}.")
+        bot.send_message(
+            user_id,
+            f"🎉 Число: {random_number}. Вы выиграли {math.floor(winnings)} монет! Ваш баланс: {get_balance(user_id)}.",
+        )
     else:
         update_balance(user_id, balance - bet)
-        bot.send_message(user_id, f"😢 Число: {random_number}. Вы проиграли {bet} монет. Ваш баланс: {get_balance(user_id)}.")
+        bot.send_message(
+            user_id,
+            f"😢 Число: {random_number}. Вы проиграли {bet} монет. Ваш баланс: {get_balance(user_id)}.",
+        )
