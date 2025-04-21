@@ -1,18 +1,16 @@
-import os
-
-import telebot
 from telebot import types
-
+from conf import bot
 from src.balance import ensure_user_data, get_balance, update_balance
+from src.mines.engine import active_games, game_over, send_field, start_mines_game
+from src.mines.view import mines_menu, send_mines_rules
+from src.nvuti.engine import nvuti_process
+from src.nvuti.view import nvuti_menu, send_nvuti_rules, nvuti_chance
 from src.slots.engine import slots_bet
 from src.slots.view import slots_menu, send_slots_rules
-from src.view import menu
+from src.view import menu, show_leaderboard
 
-from dotenv import load_dotenv
 
-load_dotenv()
-TOKEN = os.getenv("TOKEN")
-bot = telebot.TeleBot(TOKEN)
+
 @bot.callback_query_handler(func=lambda callback: True)
 def callback_handler(callback):
     """Обработчик коллбеков"""
@@ -105,7 +103,7 @@ def callback_handler(callback):
     elif callback.data == "leaderboard":
         show_leaderboard(user_id)
     elif callback.data == "play_again":
-        bot.send_message(user_id, "🎰 Добро пожаловать в игру 'Слоты'!\nВведите сумму ставки (целое число):")
+        bot.send_message(user_id, "💵Введите сумму ставки (целое число):")
         bot.register_next_step_handler(callback.message, slots_bet)
     elif callback.data == "main_menu":
         menu(callback.message)
@@ -119,4 +117,6 @@ def callback_handler(callback):
         mines_menu(user_id)
     elif callback.data == "mines_rules":
         send_mines_rules(user_id)
+
+
 bot.polling(none_stop=True)
